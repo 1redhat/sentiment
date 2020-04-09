@@ -34,7 +34,7 @@ public class FeedReader {
                 .map((key, feed) -> new KeyValue<>(feed.getHashtag().toString(), feed)).groupByKey()
                 .windowedBy(TimeWindows.of(Duration.ofSeconds(10))).count().toStream()
                 .map((Windowed<String> key, Long count) -> new KeyValue(key.key(),
-                        count.toString()))
+                        key.key() + ":" + count.toString()))
                 .to(FEEDS_AGGREGATED_TOPIC, Produced.with(Serdes.String(), Serdes.String()));
 
         return builder.build();
