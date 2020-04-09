@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.time.LocalDateTime;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -16,10 +17,14 @@ import javax.ws.rs.core.MediaType;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.ProducerTemplate;
 // import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
 
 @Path("/twitter")
 @ApplicationScoped
 public class CamelResource {
+
+    @Inject @Channel("twitter-feeds") Emitter<Feed> emitter;
 
     // @ConfigProperty(name = "twitter.user.name")
     // String twitterUserName;
@@ -59,10 +64,27 @@ public class CamelResource {
           // Iterate over matches
           while (matcher.find()) {
             tags.add(matcher.group());
+            String tag = matcher.group();
+            if (tag.trim().length() > 1) {
+              eventTag(formatTag(matcher.group()));
+            }
           }
         }
 
         System.out.println(tags);
         return tweets.toString();
+    }
+
+    public String formatTag(String tag) {
+      tag = tag.substring(1); // remove #
+      tag = tag.trim();  // remove leading and trailing spaces
+      tag = tag.toLowerCase(); // lower case
+      return tag;
+    }
+
+    public void eventTag(String tag) {
+      System.out.println("tag: " + tag);
+      emitter.send(new Feed(tag, LocalDateTime.now() + ""));
+
     }
 }
