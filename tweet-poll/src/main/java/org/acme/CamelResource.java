@@ -59,10 +59,26 @@ public class CamelResource {
           // Iterate over matches
           while (matcher.find()) {
             tags.add(matcher.group());
+            String tag = matcher.group();
+            if (tag.trim().length() > 1) {
+              eventTag(formatTag(matcher.group()));
+            }
           }
         }
 
         System.out.println(tags);
         return tweets.toString();
+    }
+
+    public String formatTag(String tag) {
+      tag = tag.substring(1); // remove #
+      tag = tag.trim();  // remove leading and trailing spaces
+      tag = tag.toLowerCase(); // lower case
+      return tag;
+    }
+
+    public void eventTag(String tag) {
+      System.out.println("tag: " + tag);
+      
     }
 }
