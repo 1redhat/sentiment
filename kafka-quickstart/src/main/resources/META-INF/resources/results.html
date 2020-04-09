@@ -18,14 +18,29 @@
         <div class="row">
             <p class="col-md-12">The last result is <strong><span id="content">N/A</span></strong>.</p>
         </div>
+        <div id="wordCloud"></div>
     </div>
 </body>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="lodash.js"></script>
+<script src="jq-cloud.js"></script>
 <script>
-    var source = new EventSource("/hashtags/stream");
-    source.onmessage = function (event) {
-        document.getElementById("content").innerHTML = event.data;
-    };
+    $(function() {
+        var tags = [];
+        var source = new EventSource("/hashtags/stream");
+            source.onmessage = function (event) {
+                // Parse message & weight
+                var input = event.data.split(":");
+                // 
+                var tag = [{word: input[0], weight: input[1]}];
+                
+                Array.prototype.push.apply(tags, tag);
+
+                $("#wordCloud").jQWCloud({ words: tags });
+
+            document.getElementById("content").innerHTML = event.data;
+        };
+    });
 </script>
 
 </html>
